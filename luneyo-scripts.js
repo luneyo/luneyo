@@ -172,19 +172,35 @@ https://templatemo.com/tm-597-neural-glass
             observer.observe(el);
         });
 
-        // Form submission effect
-        document.querySelector('.submit-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            this.innerHTML = 'TRANSMITTING...';
-            this.style.background = 'linear-gradient(45deg, #8000ff, #00ffff)';
-            
-            setTimeout(() => {
-                this.innerHTML = 'TRANSMISSION COMPLETE';
-                this.style.background = 'linear-gradient(45deg, #00ff00, #00ffff)';
-                
-                setTimeout(() => {
-                    this.innerHTML = 'TRANSMIT TO MATRIX';
-                    this.style.background = 'linear-gradient(45deg, #00ffff, #ff0080)';
-                }, 2000);
-            }, 1500);
-        });
+ // Enhanced FormSubmit handling
+const form = document.getElementById("contactForm");
+const thankYou = document.getElementById("thankYouMessage");
+const sendBtn = document.querySelector(".submit-btn");
+
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    sendBtn.innerHTML = "Sending...";
+    sendBtn.disabled = true;
+
+    const data = new FormData(form);
+    const action = form.getAttribute("action");
+
+    try {
+      await fetch(action, { method: "POST", body: data });
+      form.reset();
+      form.style.display = "none";
+      thankYou.style.display = "block";
+
+      setTimeout(() => {
+        thankYou.style.display = "none";
+        form.style.display = "block";
+        sendBtn.innerHTML = "Send it!";
+        sendBtn.disabled = false;
+      }, 5000);
+    } catch {
+      sendBtn.innerHTML = "Error. Try again.";
+      setTimeout(() => (sendBtn.innerHTML = "Send it!"), 3000);
+    }
+  });
+}

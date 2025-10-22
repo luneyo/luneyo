@@ -33,7 +33,10 @@ https://templatemo.com/tm-597-neural-glass
      width: 100%;
      height: 100%;
      z-index: -2;
-     background: radial-gradient(circle at 15% 85%, rgba(75, 0, 130, 0.7) 0%, transparent 50%), radial-gradient(circle at 85% 15%, rgba(139, 37, 99, 0.8) 0%, transparent 50%), radial-gradient(circle at 45% 60%, rgba(128, 0, 128, 0.6) 0%, transparent 50%), radial-gradient(circle at 70% 40%, rgba(34, 139, 34, 0.4) 0%, transparent 50%), linear-gradient(135deg, #0a0a0a 0%, #2d1b3d 50%, #000000 100%);
+     background: radial-gradient(circle at 15% 85%, rgba(30, 18, 56, 0.9) 0%, transparent 60%),
+            radial-gradient(circle at 80% 20%, rgba(16, 38, 68, 0.9) 0%, transparent 55%),
+            linear-gradient(135deg, #120e23 0%, #1a1740 40%, #0b1c3b 100%);
+
      animation: backgroundPulse 14s ease-in-out infinite;
 }
  @keyframes backgroundPulse {
@@ -176,7 +179,7 @@ https://templatemo.com/tm-597-neural-glass
      z-index: 100;
      width: 96%;
      max-width: 1200px;
-     padding: 18px 35px;
+     padding: 10px 28px;
      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
      background: rgba(224, 163, 255, 0.08);
      backdrop-filter: blur(25px);
@@ -213,9 +216,9 @@ https://templatemo.com/tm-597-neural-glass
      transform: scale(1.05);
 }
  .logo-icon {
-     width: 40px;
-     height: 40px;
-     filter: drop-shadow(0 0 10px #e0a3ff);
+     width: 150px;
+     height: auto;
+     margin-top: 6px;
 }
  @keyframes logoGlow {
      0%, 100% {
@@ -402,8 +405,8 @@ https://templatemo.com/tm-597-neural-glass
 }
  .hero-content {
      max-width: 1000px;
-     padding: 80px 40px;
-	 margin-top: 120px;
+     padding: 60px 40px;
+	 margin-top: 10px;
      animation: heroAppear 2.5s ease-out;
      position: relative;
      background: none;
@@ -470,7 +473,7 @@ https://templatemo.com/tm-597-neural-glass
     }
 }
  .hero h1 {
-     font-size: clamp(2.2rem, 6vw, 4rem);
+     font-size: clamp(2rem, 5vw, 3rem);
      margin-bottom: 30px;
      background: linear-gradient(135deg, #e0a3ff 0%, #ff69b4 30%, #9370db 60%, #e0a3ff 100%);
      background-size: 300% 300%;
@@ -484,6 +487,11 @@ https://templatemo.com/tm-597-neural-glass
      text-shadow: none;
      opacity: 0;
      animation: slideInFromRight 1.2s ease 0.6s forwards, modernGradient 8s ease 0.6s infinite;
+      line-height: 1.22;            /* more headroom for descenders */
+  padding-bottom: 0.15em;       /* tiny buffer below text line */
+  overflow: visible;            /* make sure the element itself can show it */
+  transform: translateZ(0);     /* nudge WebKit to re-rasterize properly */
+  -webkit-text-stroke: 0 transparent; /* reduces rare clipping with bg-clip */
 }
  @keyframes modernGradient {
      0% {
@@ -599,7 +607,7 @@ https://templatemo.com/tm-597-neural-glass
 }
  .cta-button {
      display: inline-block;
-     padding: 16px 40px;
+     padding: 10px 40px;
      background: linear-gradient(135deg, #e0a3ff, #ff69b4);
      color: #000;
      text-decoration: none;
@@ -654,7 +662,7 @@ https://templatemo.com/tm-597-neural-glass
 }
  .section-title {
      text-align: center;
-     font-size: clamp(2.5rem, 6vw, 4rem);
+     font-size: clamp(1.6rem, 3.8vw, 2.6rem);
      margin-bottom: 80px;
      color: #00ffff;
      position: relative;
@@ -730,13 +738,13 @@ https://templatemo.com/tm-597-neural-glass
      background: linear-gradient(45deg, rgba(224, 163, 255, 0.2), rgba(255, 105, 180, 0.2));
 }
  .feature-row:nth-child(1) .feature-visual {
-     background-image: url('images/templatemo-neural-01.jpg');
+     background-image: url('images/industry1.png');
 }
  .feature-row:nth-child(2) .feature-visual {
-     background-image: url('images/templatemo-neural-02.jpg');
+     background-image: url('images/industry2.png');
 }
  .feature-row:nth-child(3) .feature-visual {
-     background-image: url('images/templatemo-neural-03.jpg');
+     background-image: url('images/industry3.png');
 }
  .feature-icon {
      font-size: 4rem;
@@ -771,77 +779,75 @@ https://templatemo.com/tm-597-neural-glass
      margin: 0 auto;
      padding: 0 20px;
 }
- .hexagon {
-     width: 220px;
-     height: 290px;
-     position: relative;
-     margin: 20px;
-     transition: all 0.4s ease;
+.hexagon {
+    width: 280px;
+    height: 330px;
+    position: relative;
+    margin: 20px;
+    transition: all 0.4s ease;
 }
- .hexagon:hover {
-     transform: scale(1.1);
+
+.hexagon-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    padding: 50px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    transition: all 0.4s ease;
 }
- .hexagon-inner {
-     width: 100%;
-     height: 100%;
-     position: relative;
-     transform: rotate(30deg);
-     border-radius: 25px;
-     padding: 50px 25px;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     text-align: center;
-     overflow: hidden;
-     transition: all 0.4s ease;
+
+/* Glow on hover */
+.hexagon:hover .hexagon-inner {
+    box-shadow: 0 0 40px rgba(224, 163, 255, 0.45),
+                0 0 60px rgba(255, 105, 180, 0.35);
+    transform: scale(1.05);
 }
- .hexagon:hover .hexagon-inner {
-     transform: rotate(0deg);
-     border-radius: 15px;
+
+.hexagon:nth-child(odd) .hexagon-inner {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.12), rgba(255, 0, 128, 0.12));
+    border: 1px solid rgba(0, 255, 255, 0.3);
 }
- .hexagon:nth-child(odd) .hexagon-inner {
-     background: linear-gradient(135deg, rgba(0, 255, 255, 0.12), rgba(255, 0, 128, 0.12));
-     border: 1px solid rgba(0, 255, 255, 0.3);
+.hexagon:nth-child(even) .hexagon-inner {
+    background: linear-gradient(135deg, rgba(255, 0, 128, 0.12), rgba(128, 0, 255, 0.12));
+    border: 1px solid rgba(255, 0, 128, 0.3);
 }
- .hexagon:nth-child(even) .hexagon-inner {
-     background: linear-gradient(135deg, rgba(255, 0, 128, 0.12), rgba(128, 0, 255, 0.12));
-     border: 1px solid rgba(255, 0, 128, 0.3);
+
+.hexagon-icon {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px currentColor);
+    transition: all 0.4s ease;
 }
- .hexagon-icon {
-     font-size: 2.8rem;
-     margin-bottom: 20px;
-     transform: rotate(-30deg);
-     filter: drop-shadow(0 0 10px currentColor);
-     transition: all 0.4s ease;
+
+.hexagon:hover .hexagon-icon {
+    filter: drop-shadow(0 0 25px rgba(255, 105, 180, 0.7));
 }
- .hexagon:hover .hexagon-icon {
-     transform: rotate(0deg);
+
+.hexagon h4 {
+    font-size: 1.3rem;
+    color: #ffffff;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    transition: all 0.4s ease;
 }
- .hexagon h4 {
-     font-size: 1.3rem;
-     color: #ffffff;
-     transform: rotate(-30deg);
-     margin-bottom: 15px;
-     font-weight: bold;
-     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-     transition: all 0.4s ease;
+
+.hexagon p {
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    line-height: 1.5;
+    max-width: 160px;
+    word-wrap: break-word;
+    hyphens: auto;
+    transition: all 0.4s ease;
 }
- .hexagon:hover h4 {
-     transform: rotate(0deg);
-}
- .hexagon p {
-     font-size: 0.95rem;
-     color: #e0e0e0;
-     transform: rotate(-30deg);
-     line-height: 1.5;
-     max-width: 140px;
-     word-wrap: break-word;
-     hyphens: auto;
-     transition: all 0.4s ease;
-}
- .hexagon:hover p {
-     transform: rotate(0deg);
+
+
 }
 /* Section 4: Enhanced Timeline */
  .timeline {
@@ -1175,6 +1181,8 @@ https://templatemo.com/tm-597-neural-glass
     }
      .hero h1 {
          font-size: clamp(1.8rem, 8vw, 3rem);
+             line-height: 1.15;
+             overflow: visible;
     }
      .hero-description p {
          font-size: 1.1rem;
@@ -1272,4 +1280,82 @@ https://templatemo.com/tm-597-neural-glass
  ::-webkit-scrollbar-thumb:hover {
      background: linear-gradient(45deg, #ff0080, #8000ff);
      box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
+}
+.glass {
+  position: relative;
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+.glass.pulse {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(255, 0, 255, 0.2);
+  transform: scale(1.02);
+}
+/* ---- Layout fixes for Contact + Footer ---- */
+
+.contact {
+  padding: 150px 0 100px;
+  position: relative;
+}
+
+.contact-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.contact-info,
+.contact-form {
+  flex: 1;
+  min-width: 300px;
+  max-width: 48%;
+}
+
+.contact-form.glass {
+  height: auto;
+  overflow: visible;
+  position: relative;
+}
+
+#contactForm {
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+/* Full-width footer fix */
+.clean-footer {
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 20, 60, 0.9) 0%,
+    rgba(20, 10, 30, 1) 100%
+  );
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  font-size: 0.95rem;
+  padding: 45px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 80px;
+  clear: both;
+  position: relative;
+  z-index: 5;
+}
+
+.clean-footer p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+
+/* Small screen alignment */
+@media (max-width: 900px) {
+  .contact-container {
+    flex-direction: column;
+  }
+  .contact-info,
+  .contact-form {
+    max-width: 100%;
+  }
 }
