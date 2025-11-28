@@ -1,0 +1,138 @@
+/* HubSpot Form Custom Styling - Luneyo Theme */
+
+/* Hide HubSpot's default form title and description - More aggressive selectors */
+#hubspotForm h3,
+#hubspotForm h2,
+#hubspotForm h1,
+#hubspotForm .hs-form-title,
+#hubspotForm .hs-form-description,
+#hubspotForm .hs_cos_wrapper_type_form h3,
+#hubspotForm .hs_submit h3,
+.hbspt-form h3,
+.hbspt-form .hs-form-title,
+.hbspt-form .hs-form-description {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Force all form text to be white with higher specificity */
+#hubspotForm,
+#hubspotForm *,
+#hubspotForm p,
+#hubspotForm span,
+#hubspotForm div,
+.hbspt-form,
+.hbspt-form * {
+    color: #ffffff !important;
+}
+
+/* Style the HubSpot form container to match Luneyo design */
+.hs-form-frame {
+    padding: 20px 0;
+}
+
+/* Form fields styling */
+.hs-form .hs-input {
+    width: 100% !important;
+    padding: 15px 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1rem !important;
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease !important;
+    margin-bottom: 0 !important;
+}
+
+.hs-form .hs-input:focus {
+    outline: none !important;
+    border-color: #00ffff !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+.hs-form .hs-input::placeholder {
+    color: #999 !important;
+    opacity: 1 !important;
+}
+
+/* Textarea styling */
+.hs-form textarea.hs-input {
+    min-height: 120px !important;
+    resize: vertical !important;
+}
+
+/* Form field wrappers */
+.hs-form .hs-form-field {
+    margin-bottom: 30px !important;
+}
+
+/* Labels */
+.hs-form label {
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    font-weight: 500 !important;
+}
+
+/* Submit button styling */
+.hs-form .hs-submit .hs-button {
+    width: 100% !important;
+    padding: 18px !important;
+    background: linear-gradient(45deg, #00ffff, #ff0080) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+}
+
+.hs-form .hs-submit .hs-button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 30px rgba(0, 255, 255, 0.4) !important;
+}
+
+/* Error messages */
+.hs-form .hs-error-msgs {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 8px 0 0 0 !important;
+}
+
+.hs-form .hs-error-msg {
+    color: #ff6b6b !important;
+    font-size: 0.85rem !important;
+}
+
+/* Success message */
+.hs-form .submitted-message {
+    color: #00ffff !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    padding: 20px !important;
+}
+
+/* Required field indicator */
+.hs-form .hs-form-required {
+    color: #ff69b4 !important;
+}
+
+/* Remove default HubSpot styling */
+.hs-form fieldset {
+    max-width: none !important;
+}
+
+/* reCAPTCHA styling */
+.hs-form .hs-recaptcha {
+    margin: 20px 0 !important;
+}
