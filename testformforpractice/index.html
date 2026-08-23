@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,6 +12,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+
+    <!-- GA4 gtag.js — loads Google's tracking library and initializes it with
+         our scratch Measurement ID. This is the direct-to-GA4 path; a real
+         production site would typically route through GTM instead, but this
+         is the fastest way to see a real event land in DebugView. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V0K3X37CQQ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        // debug_mode forces events into GA4's DebugView without needing the
+        // Google Analytics Debugger browser extension. Remove this line for
+        // any real production implementation — it's practice-only.
+        gtag('config', 'G-V0K3X37CQQ', { debug_mode: true });
+    </script>
 
     <style>
         :root {
@@ -394,6 +410,43 @@
             margin-top: 22px;
             line-height: 1.5;
         }
+
+        /* Debug console */
+        .debug-console {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 14px 16px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.72rem;
+            line-height: 1.6;
+        }
+
+        .debug-console .title {
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.68rem;
+            margin-bottom: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .debug-line {
+            color: var(--accent);
+            white-space: pre-wrap;
+            word-break: break-word;
+            border-bottom: 1px dashed rgba(255,255,255,0.06);
+            padding: 4px 0;
+        }
+
+        .debug-line .ev-name {
+            color: #ffb84e;
+            font-weight: 700;
+        }
     </style>
 </head>
 
@@ -562,12 +615,49 @@
                 <p>Thank you. Your application has been received.</p>
                 <button type="button" class="btn-primary" id="restartBtn" style="width:100%;">Start new application</button>
             </div>
+
+            <!-- DEBUG: dataLayer event console (remove for real client use) -->
+            <div class="debug-console" id="debugConsole">
+                <div class="title">dataLayer events (debug view)</div>
+                <div id="debugLines"></div>
+            </div>
         </div>
 
-        <p class="demo-note">Demo application — no information is submitted or stored.</p>
+        <p class="demo-note">Demo application — no information is submitted or stored. GA4/GTM event pushes are logged live in the panel above so you can see exactly what would be sent.</p>
     </div>
 
     <script>
+        // ---- dataLayer setup ----
+        window.dataLayer = window.dataLayer || [];
+
+        function pushEvent(eventName, params) {
+            const payload = Object.assign({ event: eventName }, params || {});
+            window.dataLayer.push(payload);
+            logDebug(eventName, params || {});
+
+            // Send the same event straight to GA4. In a real production setup
+            // this step would normally be GTM's job (reading the dataLayer push
+            // above and forwarding it) — sending directly via gtag() here is a
+            // shortcut so events show up in DebugView without a GTM container.
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params || {});
+            }
+        }
+
+        function logDebug(eventName, params) {
+            const container = document.getElementById('debugLines');
+            if (!container) return;
+            const line = document.createElement('div');
+            line.className = 'debug-line';
+            const paramStr = Object.keys(params).length
+                ? ' ' + JSON.stringify(params)
+                : '';
+            line.innerHTML = `<span class="ev-name">${eventName}</span>${paramStr}`;
+            container.appendChild(line);
+            const consoleEl = document.getElementById('debugConsole');
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
         (function () {
             const totalSteps = 4;
             let currentStep = 1;
@@ -578,6 +668,18 @@
                 3: 'Loan details',
                 4: 'Review & submit'
             };
+
+            // Matches our funnel's application_step_name convention
+            const stepSlugs = {
+                1: 'personal_information',
+                2: 'employment_income',
+                3: 'loan_details',
+                4: 'review'
+            };
+
+            // Tracks whether "loan_step_reached" has already fired for a given step
+            // this session — first interaction only, not every field focus.
+            const reachedFired = {};
 
             const form = document.getElementById('loanForm');
             const steps = Array.from(document.querySelectorAll('.step'));
@@ -647,6 +749,15 @@
                 3: ['loanAmount', 'loanPurpose']
             };
 
+            // Maps a field id back to which step it belongs to, so a single
+            // shared focus/input listener knows which step "reached" to fire for.
+            const stepByField = {};
+            Object.keys(fieldsByStep).forEach((stepNum) => {
+                fieldsByStep[stepNum].forEach((fieldName) => {
+                    stepByField[fieldName] = Number(stepNum);
+                });
+            });
+
             function clearError(name) {
                 const wrap = form.querySelector(`[data-field="${name}"]`);
                 if (wrap) wrap.classList.remove('has-error');
@@ -655,6 +766,15 @@
             function setError(name) {
                 const wrap = form.querySelector(`[data-field="${name}"]`);
                 if (wrap) wrap.classList.add('has-error');
+
+                // EVENT: loan_field_error
+                const stepNum = stepByField[name];
+                pushEvent('loan_field_error', {
+                    application_step: stepNum,
+                    application_step_name: stepSlugs[stepNum],
+                    field_name: name,
+                    error_type: 'validation_error'
+                });
             }
 
             function validateStep(stepNum) {
@@ -683,44 +803,94 @@
                 return valid;
             }
 
-            // Clear error as user types/selects
+            // Clear error as user types/selects, and fire "reached" on first
+            // genuine interaction with a field (once per step per session).
             Object.keys(validators).forEach((name) => {
                 const el = document.getElementById(name);
                 if (!el) return;
+
+                el.addEventListener('focus', () => {
+                    const stepNum = stepByField[name];
+                    if (!reachedFired[stepNum]) {
+                        reachedFired[stepNum] = true;
+                        // EVENT: loan_step_reached
+                        pushEvent('loan_step_reached', {
+                            application_step: stepNum,
+                            application_step_name: stepSlugs[stepNum]
+                        });
+                    }
+                });
+
                 el.addEventListener('input', () => clearError(name));
                 el.addEventListener('change', () => clearError(name));
             });
 
             // ---- Navigation ----
             function goToStep(n) {
+                const previousStep = currentStep;
                 currentStep = n;
                 steps.forEach((s) => {
                     s.classList.toggle('active', Number(s.dataset.step) === n);
                 });
                 progressWrap.style.display = 'block';
                 updateProgress();
-                if (n === 4) populateReview();
+                if (n === 4) {
+                    populateReview();
+                    // Step 4 (Review) has no interactive form fields, so it never
+                    // fires "reached" through the focus listener above. It's a
+                    // confirmation gate, not a data-entry step — fire "reached"
+                    // directly on arrival instead.
+                    if (!reachedFired[4]) {
+                        reachedFired[4] = true;
+                        pushEvent('loan_step_reached', {
+                            application_step: 4,
+                            application_step_name: stepSlugs[4]
+                        });
+                    }
+                }
                 document.querySelector('.card').scrollTop = 0;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
             form.querySelectorAll('[data-next]').forEach((btn) => {
                 btn.addEventListener('click', () => {
-                    if (validateStep(currentStep)) {
-                        goToStep(currentStep + 1);
+                    const stepNum = currentStep;
+                    if (validateStep(stepNum)) {
+                        // EVENT: loan_step_complete
+                        pushEvent('loan_step_complete', {
+                            application_step: stepNum,
+                            application_step_name: stepSlugs[stepNum]
+                        });
+                        goToStep(stepNum + 1);
                     }
                 });
             });
 
             form.querySelectorAll('[data-back]').forEach((btn) => {
                 btn.addEventListener('click', () => {
-                    goToStep(currentStep - 1);
+                    const fromStep = currentStep;
+                    const toStep = currentStep - 1;
+
+                    // EVENT: loan_back_navigation
+                    pushEvent('loan_back_navigation', {
+                        from_step: fromStep,
+                        to_step: toStep
+                    });
+
+                    goToStep(toStep);
                 });
             });
 
             form.querySelectorAll('[data-goto]').forEach((btn) => {
                 btn.addEventListener('click', () => {
-                    goToStep(Number(btn.dataset.goto));
+                    const targetStep = Number(btn.dataset.goto);
+
+                    // EVENT: loan_edit_from_review
+                    pushEvent('loan_edit_from_review', {
+                        section_edited: stepSlugs[targetStep]
+                    });
+
+                    goToStep(targetStep);
                 });
             });
 
@@ -734,8 +904,13 @@
                 e.preventDefault();
 
                 if (currentStep < totalSteps) {
-                    if (validateStep(currentStep)) {
-                        goToStep(currentStep + 1);
+                    const stepNum = currentStep;
+                    if (validateStep(stepNum)) {
+                        pushEvent('loan_step_complete', {
+                            application_step: stepNum,
+                            application_step_name: stepSlugs[stepNum]
+                        });
+                        goToStep(stepNum + 1);
                     }
                 } else {
                     form.requestSubmit();
@@ -785,6 +960,16 @@
             // ---- Submit ----
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
+
+                // EVENT: loan_application_submit
+                pushEvent('loan_application_submit', {});
+
+                // No backend/processing gap in this demo (no credit check, no
+                // BankID step) — submit and complete fire together. In the real
+                // client flow, only push "complete" once the backend actually
+                // confirms success (see discovery question #6).
+                pushEvent('loan_application_complete', {});
+
                 // No backend, no storage — purely a UI demo.
                 form.style.display = 'none';
                 progressWrap.style.display = 'none';
@@ -798,12 +983,25 @@
                 successStep.style.display = 'none';
                 form.style.display = 'block';
                 progressWrap.style.display = 'block';
+
+                // Reset "reached" tracking so a fresh session/application
+                // fires reached events again from scratch.
+                Object.keys(reachedFired).forEach((k) => delete reachedFired[k]);
+
                 goToStep(1);
+
+                // EVENT: loan_application_start
+                pushEvent('loan_application_start', {});
             });
 
             // ---- Init ----
             buildProgress();
             updateProgress();
+
+            // EVENT: loan_application_start
+            // Fired once on initial page load, per our plan: this is a
+            // lightweight context event, not part of the main funnel itself.
+            pushEvent('loan_application_start', {});
         })();
     </script>
 </body>
