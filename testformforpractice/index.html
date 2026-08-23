@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application (Demo) — Luneyo</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0b0c14;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-soft: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.12);
+            --border-soft: rgba(255, 255, 255, 0.08);
+            --accent: #4ee5e5;
+            --accent-dim: rgba(78, 229, 229, 0.15);
+            --text: #f2f4f8;
+            --muted: #9aa3b2;
+            --error: #ff6b6b;
+            --success: #4ee5a0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(78, 229, 229, 0.08), transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(128, 0, 255, 0.08), transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .demo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #ffb84e;
+            background: rgba(255, 184, 78, 0.12);
+            border: 1px solid rgba(255, 184, 78, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin-bottom: 32px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 14px;
+        }
+
+        .progress-label span:first-child {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .progress-label span:last-child {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .progress-track {
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-dim);
+        }
+
+        .progress-dot.done {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .progress-line {
+            flex: 1;
+            height: 2px;
+            background: var(--border);
+            margin: 0 4px;
+            position: relative;
+        }
+
+        .progress-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+
+        /* Step header */
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .step-subtitle {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin: 0 0 28px;
+        }
+
+        /* Fields */
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--glass-soft);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input::placeholder {
+            color: rgba(154, 163, 178, 0.6);
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .field.has-error input,
+        .field.has-error select {
+            border-color: var(--error);
+        }
+
+        .field.has-error input:focus,
+        .field.has-error select:focus {
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+        }
+
+        .error-msg {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            color: var(--error);
+            font-size: 0.78rem;
+            margin-top: 6px;
+        }
+
+        .field.has-error .error-msg {
+            display: flex;
+        }
+
+        .field select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239aa3b2' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 38px;
+        }
+
+        .field select option {
+            background: #14151f;
+            color: var(--text);
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 14px 20px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--accent);
+            color: #04201f;
+            transition: opacity 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.99);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            transition: background 0.15s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Steps container */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Review */
+        .review-section {
+            margin-bottom: 22px;
+        }
+
+        .review-section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .review-section-head h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--muted);
+        }
+
+        .edit-link {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .review-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.92rem;
+        }
+
+        .review-row .k {
+            color: var(--muted);
+        }
+
+        .review-row .v {
+            font-weight: 500;
+            text-align: right;
+        }
+
+        /* Success */
+        #successStep {
+            display: none;
+            text-align: center;
+            padding: 20px 4px;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(78, 229, 160, 0.12);
+            border: 1px solid rgba(78, 229, 160, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.6rem;
+            color: var(--success);
+        }
+
+        #successStep h2 {
+            margin: 0 0 8px;
+            font-size: 1.3rem;
+        }
+
+        #successStep p {
+            color: var(--muted);
+            font-size: 0.92rem;
+            margin: 0 0 26px;
+        }
+
+        .demo-note {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 22px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="demo-badge">⚠ Practice demo — not a real lender</div>
+
+        <div class="card">
+            <!-- Progress indicator -->
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-label">
+                    <span id="stepLabel">Step 1 of 4</span>
+                    <span id="stepName">Personal information</span>
+                </div>
+                <div class="progress-track" id="progressTrack">
+                    <!-- built by JS -->
+                </div>
+            </div>
+
+            <form id="loanForm" novalidate>
+                <!-- STEP 1 -->
+                <div class="step active" data-step="1">
+                    <h2 class="step-title">Personal information</h2>
+                    <p class="step-subtitle">Tell us a little about yourself.</p>
+
+                    <div class="row-2">
+                        <div class="field" data-field="firstName">
+                            <label for="firstName">First name</label>
+                            <input type="text" id="firstName" name="firstName" placeholder="Jordan" autocomplete="given-name">
+                            <div class="error-msg">⚠ Please enter your first name.</div>
+                        </div>
+                        <div class="field" data-field="lastName">
+                            <label for="lastName">Last name</label>
+                            <input type="text" id="lastName" name="lastName" placeholder="Rivera" autocomplete="family-name">
+                            <div class="error-msg">⚠ Please enter your last name.</div>
+                        </div>
+                    </div>
+
+                    <div class="field" data-field="email">
+                        <label for="email">Email address</label>
+                        <input type="email" id="email" name="email" placeholder="jordan@example.com" autocomplete="email">
+                        <div class="error-msg">⚠ Please enter a valid email address.</div>
+                    </div>
+
+                    <div class="field" data-field="phone">
+                        <label for="phone">Phone number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" autocomplete="tel">
+                        <div class="error-msg">⚠ Please enter a valid phone number.</div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-primary" data-next>Continue</button>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step" data-step="2">
+                    <h2 class="step-title">Employment &amp; income</h2>
+                    <p class="step-subtitle">Help us understand your current situation.</p>
+
+                    <div class="field" data-field="employmentStatus">
+                        <label for="employmentStatus">Employment status</label>
+                        <select id="employmentStatus" name="employmentStatus">
+                            <option value="">Select one…</option>
+                            <option value="employed">Employed</option>
+                            <option value="self-employed">Self-employed</option>
+                            <option value="student">Student</option>
+                            <option value="unemployed">Unemployed</option>
+                        </select>
+                        <div class="error-msg">⚠ Please select your employment status.</div>
+                    </div>
+
+                    <div class="field" data-field="employerName">
+                        <label for="employerName">Employer name</label>
+                        <input type="text" id="employerName" name="employerName" placeholder="e.g. Acme Inc., Self, N/A">
+                        <div class="error-msg">⚠ Please enter an employer name.</div>
+                    </div>
+
+                    <div class="field" data-field="monthlyIncome">
+                        <label for="monthlyIncome">Monthly income (USD)</label>
+                        <input type="text" inputmode="numeric" id="monthlyIncome" name="monthlyIncome" placeholder="e.g. 4500">
+                        <div class="error-msg">⚠ Please enter a valid monthly income (numbers only).</div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-secondary" data-back>Back</button>
+                        <button type="button" class="btn-primary" data-next>Continue</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step" data-step="3">
+                    <h2 class="step-title">Loan details</h2>
+                    <p class="step-subtitle">What are you looking to borrow?</p>
+
+                    <div class="field" data-field="loanAmount">
+                        <label for="loanAmount">Desired loan amount (USD)</label>
+                        <input type="text" inputmode="numeric" id="loanAmount" name="loanAmount" placeholder="e.g. 10000">
+                        <div class="error-msg">⚠ Please enter a valid loan amount (numbers only).</div>
+                    </div>
+
+                    <div class="field" data-field="loanPurpose">
+                        <label for="loanPurpose">Loan purpose</label>
+                        <select id="loanPurpose" name="loanPurpose">
+                            <option value="">Select one…</option>
+                            <option value="home-improvement">Home improvement</option>
+                            <option value="car">Car</option>
+                            <option value="education">Education</option>
+                            <option value="debt-consolidation">Debt consolidation</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="error-msg">⚠ Please select a loan purpose.</div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-secondary" data-back>Back</button>
+                        <button type="button" class="btn-primary" data-next>Continue</button>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="step" data-step="4">
+                    <h2 class="step-title">Review your application</h2>
+                    <p class="step-subtitle">Please confirm everything looks correct before submitting.</p>
+
+                    <div class="review-section">
+                        <div class="review-section-head">
+                            <h4>Personal information</h4>
+                            <button type="button" class="edit-link" data-goto="1">Edit</button>
+                        </div>
+                        <div class="review-row"><span class="k">Name</span><span class="v" id="rvName">—</span></div>
+                        <div class="review-row"><span class="k">Email</span><span class="v" id="rvEmail">—</span></div>
+                        <div class="review-row"><span class="k">Phone</span><span class="v" id="rvPhone">—</span></div>
+                    </div>
+
+                    <div class="review-section">
+                        <div class="review-section-head">
+                            <h4>Employment &amp; income</h4>
+                            <button type="button" class="edit-link" data-goto="2">Edit</button>
+                        </div>
+                        <div class="review-row"><span class="k">Status</span><span class="v" id="rvEmploymentStatus">—</span></div>
+                        <div class="review-row"><span class="k">Employer</span><span class="v" id="rvEmployerName">—</span></div>
+                        <div class="review-row"><span class="k">Monthly income</span><span class="v" id="rvMonthlyIncome">—</span></div>
+                    </div>
+
+                    <div class="review-section">
+                        <div class="review-section-head">
+                            <h4>Loan details</h4>
+                            <button type="button" class="edit-link" data-goto="3">Edit</button>
+                        </div>
+                        <div class="review-row"><span class="k">Amount</span><span class="v" id="rvLoanAmount">—</span></div>
+                        <div class="review-row"><span class="k">Purpose</span><span class="v" id="rvLoanPurpose">—</span></div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-secondary" data-back>Back</button>
+                        <button type="submit" class="btn-primary">Submit application</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- SUCCESS -->
+            <div id="successStep">
+                <div class="success-icon">✓</div>
+                <h2>Application submitted</h2>
+                <p>Thank you. Your application has been received.</p>
+                <button type="button" class="btn-primary" id="restartBtn" style="width:100%;">Start new application</button>
+            </div>
+        </div>
+
+        <p class="demo-note">Demo application — no information is submitted or stored.</p>
+    </div>
+
+    <script>
+        (function () {
+            const totalSteps = 4;
+            let currentStep = 1;
+
+            const stepNames = {
+                1: 'Personal information',
+                2: 'Employment & income',
+                3: 'Loan details',
+                4: 'Review & submit'
+            };
+
+            const form = document.getElementById('loanForm');
+            const steps = Array.from(document.querySelectorAll('.step'));
+            const successStep = document.getElementById('successStep');
+            const stepLabel = document.getElementById('stepLabel');
+            const stepName = document.getElementById('stepName');
+            const progressTrack = document.getElementById('progressTrack');
+            const progressWrap = document.getElementById('progressWrap');
+
+            // ---- Build progress indicator (dots + connecting lines) ----
+            function buildProgress() {
+                progressTrack.innerHTML = '';
+                for (let i = 1; i <= totalSteps; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'progress-dot';
+                    dot.dataset.dot = i;
+                    progressTrack.appendChild(dot);
+
+                    if (i < totalSteps) {
+                        const line = document.createElement('div');
+                        line.className = 'progress-line';
+                        const fill = document.createElement('div');
+                        fill.className = 'progress-line-fill';
+                        line.appendChild(fill);
+                        line.dataset.line = i;
+                        progressTrack.appendChild(line);
+                    }
+                }
+            }
+
+            function updateProgress() {
+                stepLabel.textContent = `Step ${currentStep} of ${totalSteps}`;
+                stepName.textContent = stepNames[currentStep];
+
+                const dots = progressTrack.querySelectorAll('.progress-dot');
+                const lines = progressTrack.querySelectorAll('.progress-line-fill');
+
+                dots.forEach((dot) => {
+                    const n = Number(dot.dataset.dot);
+                    dot.classList.remove('active', 'done');
+                    if (n < currentStep) dot.classList.add('done');
+                    else if (n === currentStep) dot.classList.add('active');
+                });
+
+                lines.forEach((fill) => {
+                    const n = Number(fill.parentElement.dataset.line);
+                    fill.style.width = n < currentStep ? '100%' : '0%';
+                });
+            }
+
+            // ---- Validation ----
+            const validators = {
+                firstName: (v) => v.trim().length > 0,
+                lastName: (v) => v.trim().length > 0,
+                email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+                phone: (v) => /^[\d\s().+-]{7,20}$/.test(v.trim()) && v.replace(/\D/g, '').length >= 7,
+                employmentStatus: (v) => v.trim().length > 0,
+                employerName: (v) => v.trim().length > 0,
+                monthlyIncome: (v) => /^[0-9]+(\.[0-9]{1,2})?$/.test(v.trim().replace(/,/g, '')),
+                loanAmount: (v) => /^[0-9]+(\.[0-9]{1,2})?$/.test(v.trim().replace(/,/g, '')),
+                loanPurpose: (v) => v.trim().length > 0
+            };
+
+            const fieldsByStep = {
+                1: ['firstName', 'lastName', 'email', 'phone'],
+                2: ['employmentStatus', 'employerName', 'monthlyIncome'],
+                3: ['loanAmount', 'loanPurpose']
+            };
+
+            function clearError(name) {
+                const wrap = form.querySelector(`[data-field="${name}"]`);
+                if (wrap) wrap.classList.remove('has-error');
+            }
+
+            function setError(name) {
+                const wrap = form.querySelector(`[data-field="${name}"]`);
+                if (wrap) wrap.classList.add('has-error');
+            }
+
+            function validateStep(stepNum) {
+                const names = fieldsByStep[stepNum];
+                if (!names) return true;
+
+                let valid = true;
+                let firstInvalid = null;
+
+                names.forEach((name) => {
+                    const el = document.getElementById(name);
+                    const ok = validators[name](el.value || '');
+                    if (!ok) {
+                        setError(name);
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = el;
+                    } else {
+                        clearError(name);
+                    }
+                });
+
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+
+                return valid;
+            }
+
+            // Clear error as user types/selects
+            Object.keys(validators).forEach((name) => {
+                const el = document.getElementById(name);
+                if (!el) return;
+                el.addEventListener('input', () => clearError(name));
+                el.addEventListener('change', () => clearError(name));
+            });
+
+            // ---- Navigation ----
+            function goToStep(n) {
+                currentStep = n;
+                steps.forEach((s) => {
+                    s.classList.toggle('active', Number(s.dataset.step) === n);
+                });
+                progressWrap.style.display = 'block';
+                updateProgress();
+                if (n === 4) populateReview();
+                document.querySelector('.card').scrollTop = 0;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            form.querySelectorAll('[data-next]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    if (validateStep(currentStep)) {
+                        goToStep(currentStep + 1);
+                    }
+                });
+            });
+
+            form.querySelectorAll('[data-back]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    goToStep(currentStep - 1);
+                });
+            });
+
+            form.querySelectorAll('[data-goto]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    goToStep(Number(btn.dataset.goto));
+                });
+            });
+
+            // ---- Review population ----
+            const purposeLabels = {
+                'home-improvement': 'Home improvement',
+                'car': 'Car',
+                'education': 'Education',
+                'debt-consolidation': 'Debt consolidation',
+                'other': 'Other'
+            };
+
+            const statusLabels = {
+                'employed': 'Employed',
+                'self-employed': 'Self-employed',
+                'student': 'Student',
+                'unemployed': 'Unemployed'
+            };
+
+            function val(id) {
+                const el = document.getElementById(id);
+                return el ? el.value.trim() : '';
+            }
+
+            function formatMoney(v) {
+                const n = Number(v.replace(/,/g, ''));
+                if (isNaN(n)) return v;
+                return '$' + n.toLocaleString('en-US');
+            }
+
+            function populateReview() {
+                document.getElementById('rvName').textContent = `${val('firstName')} ${val('lastName')}`.trim() || '—';
+                document.getElementById('rvEmail').textContent = val('email') || '—';
+                document.getElementById('rvPhone').textContent = val('phone') || '—';
+
+                document.getElementById('rvEmploymentStatus').textContent = statusLabels[val('employmentStatus')] || '—';
+                document.getElementById('rvEmployerName').textContent = val('employerName') || '—';
+                document.getElementById('rvMonthlyIncome').textContent = val('monthlyIncome') ? formatMoney(val('monthlyIncome')) + '/mo' : '—';
+
+                document.getElementById('rvLoanAmount').textContent = val('loanAmount') ? formatMoney(val('loanAmount')) : '—';
+                document.getElementById('rvLoanPurpose').textContent = purposeLabels[val('loanPurpose')] || '—';
+            }
+
+            // ---- Submit ----
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // No backend, no storage — purely a UI demo.
+                form.style.display = 'none';
+                progressWrap.style.display = 'none';
+                successStep.style.display = 'block';
+            });
+
+            // ---- Restart ----
+            document.getElementById('restartBtn').addEventListener('click', () => {
+                form.reset();
+                Object.keys(validators).forEach(clearError);
+                successStep.style.display = 'none';
+                form.style.display = 'block';
+                progressWrap.style.display = 'block';
+                goToStep(1);
+            });
+
+            // ---- Init ----
+            buildProgress();
+            updateProgress();
+        })();
+    </script>
+</body>
+
+</html>
