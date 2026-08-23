@@ -724,6 +724,24 @@
                 });
             });
 
+            // Pressing Enter in any field should advance/submit the *current*
+            // step through the same validation path as clicking the button —
+            // never let the browser silently native-submit the form early.
+            form.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                if (e.target.tagName === 'TEXTAREA') return; // allow newlines if any textarea is added later
+
+                e.preventDefault();
+
+                if (currentStep < totalSteps) {
+                    if (validateStep(currentStep)) {
+                        goToStep(currentStep + 1);
+                    }
+                } else {
+                    form.requestSubmit();
+                }
+            });
+
             // ---- Review population ----
             const purposeLabels = {
                 'home-improvement': 'Home improvement',
